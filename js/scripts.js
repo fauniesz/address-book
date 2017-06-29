@@ -1,69 +1,77 @@
 //business logic
-function Contact(first, last, street, city, state, zip, country, phone, email) {
+function Contact(first, last) {
   this.firstName = first;
   this.lastName = last;
-  this.streetAddress = street;
-  this.cityAddress = city;
-  this.stateAddress = state;
-  this.zipAddress = zip;
-  this.countryAddress = country;
-  this.phone = phone;
-  this.email = email;
+  this.addresses = [];
+}
+
+function Address(street, city, state) {
+  this.street = street;
+  this.city = city;
+  this.state = state;
 }
 
 Contact.prototype.fullName = function() {
   return this.firstName + " " + this.lastName;
 }
 
+Address.prototype.fullAddress = function() {
+  return this.street + ", " + this.city + ", " + this.state;
+}
+
 // user interface logic
 $(document).ready(function() {
+
+  $("#add-address").click(function() {
+    $("#new-addresses").append('<div class="new-address">' +
+                                 '<div class="form-group">' +
+                                   '<label for="new-street">Street</label>' +
+                                   '<input type="text" class="form-control new-street">' +
+                                 '</div>' +
+                                 '<div class="form-group">' +
+                                   '<label for="new-city">City</label>' +
+                                   '<input type="text" class="form-control new-city">' +
+                                 '</div>' +
+                                 '<div class="form-group">' +
+                                   '<label for="new-state">State</label>' +
+                                   '<input type="text" class="form-control new-state">' +
+                                 '</div>' +
+                               '</div>');
+  });
+
   $("form#new-contact").submit(function(event) {
     event.preventDefault();
 
     var inputtedFirstName = $("input#new-first-name").val();
-
     var inputtedLastName = $("input#new-last-name").val();
+    var newContact = new Contact(inputtedFirstName, inputtedLastName);
 
-    var inputtedStreetAddress = $("input#new-street-address").val();
-
-    var inputtedCityAddress = $("input#new-city-address").val();
-
-    var inputtedStateAddress = $("input#new-state-address").val();
-
-    var inputtedZipAddress = $("input#new-zip-address").val();
-
-    var inputtedCountryAddress = $("input#new-country-address").val();
-
-    var inputtedPhone = $("input#new-phone").val();
-
-    var inputtedEmail = $("input#new-email").val();
-
-    var newContact = new Contact(inputtedFirstName, inputtedLastName, inputtedStreetAddress, inputtedCityAddress, inputtedStateAddress, inputtedZipAddress, inputtedCountryAddress, inputtedPhone, inputtedEmail);
+    $(".new-address").each(function() {
+      var inputtedStreet = $(this).find("input.new-street").val();
+      var inputtedCity = $(this).find("input.new-city").val();
+      var inputtedState = $(this).find("input.new-state").val();
+      var newAddress = new Address(inputtedStreet, inputtedCity, inputtedState)
+      newContact.addresses.push(newAddress)
+    });
 
     $("ul#contacts").append("<li><span class='contact'>" + newContact.fullName() + "</span></li>");
 
     $(".contact").last().click(function() {
       $("#show-contact").show();
-      $("#show-contact h2").text(newContact.firstName);
-      $("#show-contact .first-name").text(newContact.firstName);
-      $("#show-contact .last-name").text(newContact.lastName);
-      $("#show-contact .street-address").text(newContact.streetAddress);
-      $("#show-contact .city-address").text(newContact.cityAddress);
-      $("#show-contact .state-address").text(newContact.stateAddress);
-      $("#show-contact .zip-address").text(newContact.zipAddress);
-      $("#show-contact .country-address").text(newContact.countryAddress);
-      $("#show-contact .phone").text(newContact.phone);
-      $("#show-contact .email").text(newContact.email);
+      $("#show-contact h2").text(newContact.fullName());
+      $(".first-name").text(newContact.firstName);
+      $(".last-name").text(newContact.lastName);
+      $("ul#addresses").text("");
+      newContact.addresses.forEach(function(address) {
+        $("ul#addresses").append("<li>" + address.fullAddress() + "</li>");
+      });
     });
 
-    // $("input#new-first-name").val("");
-    // $("input#new-last-name").val("");
-    // $("input#new-street-address").val("");
-    // $("input#new-city-address").val("");
-    // $("input#new-state-address").val("");
-    // $("input#new-zip-address").val("");
-    // $("input#new-country-address").val("");
-    // $("input#new-phone").val("");
-    // $("input#new-email").val("");
+    $("input#new-first-name").val("");
+    $("input#new-last-name").val("");
+    $("input.new-street").val("");
+    $("input.new-city").val("");
+    $("input.new-state").val("");
+
   });
 });
